@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>School Detail</title>
+</head>
+<body>
+
+<h1>{{ school.name }}</h1>
+<ul>
+    <li>School Name: {{ school.name }}</li>
+    <li>School Code: {{ school.code }}</li>
+    <li>City name: {{ school.city|title }}</li>
+    <li>District name: {{ school.district }}</li>
+    <li>Address detail: {{ school.address_detail }}</li>
+    <li>School is_active: {{ school.is_active }}</li>
+
+</ul>
+
+<p>Bus(s)</p>
+<ul>
+    {% for bus in school.bus_set.all %}
+        <li>{{ bus.bus_number }}</li>
+    {% endfor %}
+</ul>
+
+<p>Driver(s):</p>
+<ul>
+    {% for driver in school.driver_set.all %}
+        <li>{{ driver.first_name }} {{ driver.last_name }}</li>
+    {% endfor %}
+</ul>
+
+<p>Village(s):</p>
+<ul>
+    {% for village in school.village_set.all %}
+        <li>{{ village.name }}</li>
+    {% endfor %}
+</ul>
+
+<p>Person(s):</p>
+<ul>
+    {% for person in school.person_set.all %}
+        <li>{{ person.username }}</li>
+    {% endfor %}
+</ul>
+
+<p>Grade(s):</p>
+<ul>
+    {% for grade in school.grade_set.all %}
+        <li>{{ grade.level }}/{{ grade.branch }}</li>
+    {% endfor %}
+</ul>
+
+<p>Student(s):</p>
+<ul>
+    {% for student in school.student_set.all %}
+        <li>{{ student.first_name }} {{ student.last_name }}</li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>

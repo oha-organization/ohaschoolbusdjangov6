@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance List</title>
+</head>
+<body>
+<h1>Attendance List</h1>
+<p>Absent Student List</p>
+{% if object_list %}
+    <ul>
+    <li>id - check_date - check_direction - student - person</li>
+    {% for attendance in object_list %}
+        <li>{{ attendance.id }} - {{ attendance.check_date }} - {{ attendance.get_check_direction_display }}
+            - {{ attendance.student }} - {{ attendance.person }}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No unattended are available.</p>
+{% endif %}
+</body>
+</html>

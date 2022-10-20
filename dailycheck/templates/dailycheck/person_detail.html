@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Person Detail</title>
+</head>
+<body>
+
+<h1>{{ person.username }}</h1>
+<ul>
+    <li>Id: {{ person.id }}</li>
+    <li>School: {{ person.school }}</li>
+    <li>username: {{ person.username }}</li>
+    <li>First name: {{ person.first_name }}</li>
+    <li>Last name: {{ person.last_name }}</li>
+    <li>Role: {{ person.get_role_display }} ({{ person.role }})</li>
+</ul>
+
+</body>
+</html>

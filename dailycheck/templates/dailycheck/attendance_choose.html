@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance Choose</title>
+</head>
+<body>
+
+<h1>Attendance Choose</h1>
+Bus List: {{ bus_list }}
+<form method="post" action="{% url 'dailycheck:attendance-get' %}">{% csrf_token %}
+    <select name="bus" required id="bus">
+        <option value selected>-----</option>
+        {% for bus in bus_list %}
+            <option value="{{ bus.id }}">{{ bus.bus_number }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="chosen_date">Date:</label>
+    <input type="date" id="chosen_date" name="chosen_date" value="{{ today|date:'Y-m-d' }}"><br>
+    Direction:
+    <input type="radio" id="coming" name="direction" value="coming">
+    <label for="coming">Coming</label>
+    <input type="radio" id="leaving" name="direction" value="leaving">
+    <label for="leaving">Leaving</label><br>
+
+    <input type="submit" value="Save">
+</form>
+
+
+</body>
+</html>

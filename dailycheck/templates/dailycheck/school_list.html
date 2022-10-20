@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>School List</title>
+</head>
+<body>
+
+<h1>School List</h1>
+<ul>
+{% for school in school_list %}
+    <li><a href="">{{ school }}</a></li>
+{% empty %}
+    <li>Sorry, no schools in this list.</li>
+{% endfor %}
+</ul>
+</body>
+</html>

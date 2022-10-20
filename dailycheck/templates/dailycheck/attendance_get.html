@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance get</title>
+</head>
+<body>
+
+<h1>Get Attendance</h1>
+<p>Bus: {{ bus }}</p>
+<p>Date: {{ chosen_date }}</p>
+<p>Direction: {{ direction }}</p>
+<p>Students: {{ student_list }}</p>
+<p>Student List Count: {{ student_list_count }}</p>
+<p>Already Absent Student List: {{ student_already_absent_list }}</p>
+
+<form method="post" action="{% url 'dailycheck:attendance-save' %}">{% csrf_token %}
+    Students:<br>
+    {% for student in student_list %}
+    {{ chosen_date }} | {{ direction }} |
+        <input type="checkbox" id="absent_list{{ forloop.counter }}" name="absent_list" value="{{ student.id }}" {% if student in student_already_absent_list %} checked{% endif %}
+        >
+        <label for="absent_list{{ forloop.counter }}"> {{ student.first_name }}</label><br>
+    {% endfor %}
+
+    <input type="hidden" id="chosen_date" name="chosen_date" value="{{ chosen_date }}">
+    <input type="hidden" id="direction" name="direction" value="{{ direction }}">
+    <input type="hidden" id="bus" name="bus" value="{{ bus }}">
+    <input type="hidden" id="student_list_count" name="student_list_count" value="{{ student_list_count }}">
+    <input type="submit" value="Save">
+</form>
+
+</body>
+</html>

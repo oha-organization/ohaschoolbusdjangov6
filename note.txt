@@ -1,0 +1,16 @@
+5A dan Ali 16 October 2022 İlk ders Öğretmen
+
+
+Signature Table -> Log record
+SCHOOL/BUS/DATE/DIRECTION/TOTAL_ABSENT_STUDENTS/TOTAL_STUDENTS/TEACHER/TIMESTAMP
+1001/190/16 OCTOBER/COMING/3/30/ÖZGÜR/TimeStamp
+1001/1/DATE/COMING/3/30/1/TIMESTAMP
+
+Attendance Table ->(Gelmeyenler kaydı)
+SCHOOL/DATE/DIRECTION/STUDENT
+1001/DATE/COMING/124
+
+
+Select bus, date, direction->Teacher comes automatically
+
+Choose, get, save attendance

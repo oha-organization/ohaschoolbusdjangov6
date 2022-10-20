@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>School Change</title>
+</head>
+<body>
+
+<h1>School Change</h1>
+a: {{ selected_school }}
+<form method="post">{% csrf_token %}
+    School Name:<input type="text" name="name" id="name" value="{{ selected_school.name }}">
+    School Code:<input type="number" name="code" id="code" value="{{ selected_school.code }}">
+    City:
+    <select name="city" required id="city">
+        <option value selected>-----</option>
+        {% for city in city_list %}
+            <option value="{{ city.id }}" {% if selected_school.city_id == city.id %} selected{% endif %}
+>{{ city.name }}</option>
+        {% endfor %}
+    </select>
+    District:
+    <select name="district" required id="district">
+        <option value selected>-----</option>
+        {% for district in district_list %}
+            <option value="{{ district.id }}" {% if selected_school.district_id == district.id %} selected{% endif %} >{{ district.name }}</option>
+        {% endfor %}
+    </select>
+    Address Detail:<input type="text" name="address_detail" id="address_detail" value="{{ selected_school.address_detail }}">
+    Is active:<input type="checkbox" name="is_active" id="is_active" {% if selected_school.is_active %}checked{% endif %}>
+    <input type="submit" value="Save">
+</form>
+
+
+</body>
+</html>
