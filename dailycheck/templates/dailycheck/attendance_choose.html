@@ -7,8 +7,8 @@
 <body>
 
 <h1>Attendance Choose</h1>
-Bus List: {{ bus_list }}
 <form method="post" action="{% url 'dailycheck:attendance-get' %}">{% csrf_token %}
+    Bus:
     <select name="bus" required id="bus">
         <option value selected>-----</option>
         {% for bus in bus_list %}
