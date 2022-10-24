@@ -16,8 +16,8 @@ Bus List: {{ bus_list }}
         {% endfor %}
     </select>
 
-    <label for="chosen_date">Date:</label>
-    <input type="date" id="chosen_date" name="chosen_date" value="{{ today|date:'Y-m-d' }}"><br>
+    <label for="check_date">Date:</label>
+    <input type="date" id="check_date" name="check_date" value="{{ today|date:'Y-m-d' }}"><br>
     Direction:
     <input type="radio" id="coming" name="direction" value="coming">
     <label for="coming">Coming</label>
@@ -27,6 +27,6 @@ Bus List: {{ bus_list }}
     <input type="submit" value="Save">
 </form>
 
-
+<a href="{% url 'dailycheck:school-list' %}">Home page</a>
 </body>
 </html>

@@ -135,29 +135,6 @@ class Person(models.Model):
         return self.username
 
 
-class Attendance(models.Model):
-    DIRECTION_CHOICES = (
-        ("coming", "Coming"),
-        ("leaving", "Leaving"),
-    )
-    school = models.ForeignKey(School, on_delete=models.CASCADE)
-    check_date = models.DateField()
-    direction = models.CharField(max_length=7, choices=DIRECTION_CHOICES)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-
-    class Meta:
-        ordering = ["-check_date"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["school", "check_date", "direction", "student"],
-                name="unique_student_with_school_date_direction_and_student",
-            )
-        ]
-
-    def __str__(self):
-        return f"{self.school} | {self.check_date} | {self.direction} | {self.student}"
-
-
 class Signature(models.Model):
     DIRECTION_CHOICES = (
         ("coming", "Coming"),
@@ -167,10 +144,19 @@ class Signature(models.Model):
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE)
     check_date = models.DateField()
     direction = models.CharField(max_length=7, choices=DIRECTION_CHOICES)
-    absent_count = models.IntegerField(blank=True, null=True)
-    actual_count = models.IntegerField(blank=True, null=True)
     teacher = models.ForeignKey(Person, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    signed_at = models.DateTimeField(auto_now=True)
+    is_signed = models.BooleanField(default=False)
+
+    @property
+    def number_of_absent_student(self):
+        return Attendance.objects.filter(signature=self.id).count()
+        # return self.attendance_set.count()
+
+    @property
+    def number_of_total_student(self):
+        return Student.objects.filter(bus=self.bus).count()
 
     class Meta:
         ordering = ["-check_date"]
@@ -183,6 +169,27 @@ class Signature(models.Model):
 
     def __str__(self):
         return (
-            f"{self.school} | {self.bus} | {self.check_date} | {self.direction} | {self.absent_count} | "
-            f"{self.actual_count} | {self.teacher} | {self.created_at} "
+            f"{self.school.id} | {self.bus.id} | {self.check_date} | {self.direction} | "
+            f"{self.number_of_absent_student} | {self.number_of_total_student} | {self.teacher.id} | "
+            f"{self.created_at} | {self.signed_at} | {self.is_signed}"
         )
+
+    def get_absolute_url(self):
+        return reverse("signature-detail", kwargs={"pk": self.pk})
+
+
+class Attendance(models.Model):
+    signature = models.ForeignKey(Signature, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ["-signature"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "signature"],
+                name="unique_attendance_with_student_and_signature",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.signature.id} | {self.student}"

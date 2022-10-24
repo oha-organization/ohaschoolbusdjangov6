@@ -6,27 +6,19 @@
 </head>
 <body>
 
-<h1>Get Attendance</h1>
-<p>Bus: {{ bus }}</p>
-<p>Date: {{ chosen_date }}</p>
-<p>Direction: {{ direction }}</p>
-<p>Students: {{ student_list }}</p>
-<p>Student List Count: {{ student_list_count }}</p>
-<p>Already Absent Student List: {{ student_already_absent_list }}</p>
+<h1>Bus: {{ signature.bus }}, {{ signature.check_date }} - {{ signature.direction }}</h1>
+<p>Signature: {{ signature }}</p>
 
 <form method="post" action="{% url 'dailycheck:attendance-save' %}">{% csrf_token %}
-    Students:<br>
+    Student Name | Absent <br>
     {% for student in student_list %}
-    {{ chosen_date }} | {{ direction }} |
-        <input type="checkbox" id="absent_list{{ forloop.counter }}" name="absent_list" value="{{ student.id }}" {% if student in student_already_absent_list %} checked{% endif %}
-        >
-        <label for="absent_list{{ forloop.counter }}"> {{ student.first_name }}</label><br>
+        <label for="student_absent_list{{ forloop.counter }}"> {{ student.first_name }}</label>
+        <input type="checkbox" id="student_absent_list{{ forloop.counter }}" name="student_absent_list"
+               value="{{ student.id }}" {% if student in student_already_absent_list %} checked{% endif %}>
+        <br>
+    {% empty %}
+        <li>Sorry, no students in this list.</li>
     {% endfor %}
-
-    <input type="hidden" id="chosen_date" name="chosen_date" value="{{ chosen_date }}">
-    <input type="hidden" id="direction" name="direction" value="{{ direction }}">
-    <input type="hidden" id="bus" name="bus" value="{{ bus }}">
-    <input type="hidden" id="student_list_count" name="student_list_count" value="{{ student_list_count }}">
     <input type="submit" value="Save">
 </form>
 

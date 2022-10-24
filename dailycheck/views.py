@@ -1,17 +1,17 @@
 import datetime
 
-from django.shortcuts import render, get_object_or_404, get_list_or_404
+from django.core import serializers
+from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
+from django.urls import reverse
 
 from .models import School, Person, Bus, Student, Attendance, Signature
 
 # General data for easy implementation
-school = School.objects.get(id=1)
 teacher = Person.objects.get(id=1)
 
 
 def home(request):
-    context = {"school": school, "teacher": teacher}
-    return render(request, "dailycheck/home.html", context)
+    return redirect("dailycheck:school-list")
 
 
 def school_list(request):
@@ -19,78 +19,80 @@ def school_list(request):
     return render(request, "dailycheck/school_list.html", context)
 
 
-def attendance_choose(request):
+def attendance_choose(request, school_id):
     # Show menu to Choose bus, date, direction
     # School and user comes automatic with session
-    context = {"bus_list": Bus.objects.all(), "today": datetime.date.today()}
+    request.session["school_id"] = school_id
+    school = get_object_or_404(School.objects.all(), id=school_id)
+    bus_list = Bus.objects.filter(school=school)
+    context = {"bus_list": bus_list, "today": datetime.date.today()}
     return render(request, "dailycheck/attendance_choose.html", context)
 
 
 def attendance_get(request):
+    school = get_object_or_404(School.objects.all(), id=request.session["school_id"])
     bus = get_object_or_404(Bus.objects.all(), id=request.POST.get("bus"))
-    chosen_date = request.POST.get("chosen_date")
+    check_date = request.POST.get("check_date")
     direction = request.POST.get("direction")
-    student_list = get_list_or_404(Student.objects.all(), bus=bus)
+    student_list = Student.objects.filter(bus=bus)
 
-    # Check and get attendance table for chosen date if there was a student record
-    student_already_absent_list = Student.objects.filter(
-        attendance__school=school,
-        attendance__check_date=chosen_date,
-        attendance__direction=direction,
+    # Get or create new signature
+    # fields = ["school", "bus", "check_date", "direction"],
+    signature, created = Signature.objects.get_or_create(
+        school=school,
+        bus=bus,
+        direction=direction,
+        check_date=check_date,
+        defaults={"teacher": teacher},
     )
 
-    student_list_count = len(student_list)
+    request.session["signature_id"] = signature.id
+
+    # If signature is already exist get unattended student list
+    student_already_absent_list = []
+    if not created:
+        student_already_absent_list = Student.objects.filter(
+            attendance__signature=signature
+        )
 
     context = {
-        "bus": bus,
-        "chosen_date": chosen_date,
-        "direction": direction,
         "student_list": student_list,
-        "student_list_count": student_list_count,
         "student_already_absent_list": student_already_absent_list,
+        "signature": signature,
     }
     return render(request, "dailycheck/attendance_get.html", context)
 
 
 def attendance_save(request):
-    """Show saved result"""
-    chosen_date = request.POST.get("chosen_date")
-    bus = request.POST.get("bus")
-    direction = request.POST.get("direction")
-    absent_list = request.POST.getlist("absent_list")
-    student_list_count = request.POST.get("student_list_count")
-    created_at = datetime.datetime.now()
-
+    """Save attendance logic"""
     if request.method == "POST":
-        for student in absent_list:
-            Attendance.objects.update_or_create(
-                school=school,
-                check_date=chosen_date,
-                direction=direction,
-                student_id=student,
-            )
+        student_absent_list = request.POST.getlist("student_absent_list")
 
-        # Call the Signature model and sign
-        Signature.objects.update_or_create(
-            school=school,
-            bus_id=1,
-            check_date=chosen_date,
-            direction=direction,
-            defaults={
-                "absent_count": len(absent_list),
-                "actual_count": student_list_count,
-                "teacher_id": 1,
-            },
-        )
+        # Delete all attendance for signature
+        signature = Signature.objects.get(id=request.session["signature_id"])
+        Attendance.objects.filter(signature=signature).delete()
 
-    context = {
-        "school": school,
-        "bus": bus,
-        "chosen_date": chosen_date,
-        "direction": direction,
-        "absent_list_count": len(absent_list),
-        "student_list_count": student_list_count,
-        "teacher": teacher,
-        "created_at": created_at,
-    }
-    return render(request, "dailycheck/attendance_save.html", context)
+        # Add absent students to Attendance
+        for student in student_absent_list:
+            Attendance.objects.create(signature=signature, student_id=student)
+
+        # Touch Signature Model for update to signed_at field
+        signature.is_signed = True
+        signature.save()
+
+        # return redirect("dailycheck:signature-detail", signature.id)
+        return redirect("dailycheck:attendance-save-done")
+
+
+def attendance_save_done(request):
+    signature = get_object_or_404(
+        Signature.objects.all(), id=request.session["signature_id"]
+    )
+    context = {"signature": signature}
+    return render(request, "dailycheck/attendance_save_done.html", context)
+
+
+def signature_detail(request, signature_id):
+    signature = get_object_or_404(Signature.objects.all(), id=signature_id)
+    context = {"signature": signature}
+    return render(request, "dailycheck/signature_detail.html", context)
